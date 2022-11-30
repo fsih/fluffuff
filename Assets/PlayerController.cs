@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public const float SPEED = 2.8f; // change this to change the movement speed
+    public const float SPEED = 5f; // change this to change the movement speed
     private const int STOPPED = -1; // a moveDirection value
     private Rigidbody2D rigidBody;
     private Animator animator;
@@ -19,7 +19,8 @@ public class PlayerController : MonoBehaviour
     }
 
     void Update() {
-        Camera.main.transform.position = Camera.main.transform.position + rigidBody.transform.position - lastPlayerPosition;
+        // Camera follows player y
+        Camera.main.transform.position += new Vector3(0, rigidBody.transform.position.y - lastPlayerPosition.y, 0);
         lastPlayerPosition = rigidBody.transform.position;
         int moveDirection = 0; // degrees ccw from going right
 
@@ -62,7 +63,7 @@ public class PlayerController : MonoBehaviour
         }
 
         animator.SetInteger("walking", moveDirection);
-        if (moveDirection > 90 && moveDirection < 270) {
+        if (moveDirection > 90 && moveDirection <= 270) {
             renderer.flipX = false;
         } else if (moveDirection != STOPPED) {
             renderer.flipX = true;
@@ -72,6 +73,11 @@ public class PlayerController : MonoBehaviour
             rigidBody.velocity = new Vector2(0, 0);
         } else {
             rigidBody.velocity = moveDirectionToVector(moveDirection);
+        }
+
+        // Stay on the ground
+        if (rigidBody.transform.position.y > 5.26f) {
+            rigidBody.transform.position -= new Vector3(0, rigidBody.transform.position.y - 5.26f, 0);
         }
     }
 
