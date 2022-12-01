@@ -31,10 +31,10 @@ public class BoxController : MonoBehaviour
             cat.GetComponent<PlayerController>().SetInBox(false);
         }
         if (rigidBody.transform.position.x > 3.4f) {
-            rigidBody.transform.position -= new Vector3(rigidBody.transform.position.x - 3.4f, 0, 0);
+            rigidBody.transform.position = new Vector3(-3.3f, rigidBody.transform.position.y, 0);
         }
         if (rigidBody.transform.position.x < -3.4f) {
-            rigidBody.transform.position -= new Vector3(rigidBody.transform.position.x + 3.4f, 0, 0);
+            rigidBody.transform.position = new Vector3(3.3f, rigidBody.transform.position.y, 0);
         }
 
         if (!hasCat) return;
@@ -80,7 +80,7 @@ public class BoxController : MonoBehaviour
         animator.SetBool("hascat", hasCat);
         if (this.hasCat) {
             rigidBody.rotation = 0;
-            rigidBody.velocity = new Vector2(0, .2f);
+            rigidBody.velocity = new Vector2(0, .3f);
         } else {
             rigidBody.velocity = Vector2.zero;
         }
