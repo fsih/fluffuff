@@ -37,13 +37,11 @@ public class BoxController : MonoBehaviour
             rigidBody.transform.position -= new Vector3(rigidBody.transform.position.x + 3.4f, 0, 0);
         }
 
-
         if (!hasCat) return;
 
         // Camera follows player y
         Camera.main.transform.position += new Vector3(0, rigidBody.transform.position.y - lastPlayerPosition.y, 0);
         lastPlayerPosition = rigidBody.transform.position;
-        int moveDirection = 0; // degrees ccw from going right
 
         bool w = Input.GetKey("w");
         bool s = Input.GetKey("s");
@@ -59,51 +57,33 @@ public class BoxController : MonoBehaviour
             a = false;
         }
 
+        float dy = Mathf.Cos(Mathf.Deg2Rad * (rigidBody.rotation));
+        float dx = -Mathf.Sin(Mathf.Deg2Rad * (rigidBody.rotation));
         if (w) {
-            if (d) {
-                moveDirection = 45;
-            } else if (a) {
-                moveDirection = 135;
-            } else {
-                moveDirection = 90;
-            }
+            rigidBody.velocity += .01f * new Vector2(dx, dy);
         } else if (s) {
-            if (d) {
-                moveDirection = 315;
-            } else if (a) {
-                moveDirection = 225;
-            } else {
-                moveDirection = 270;
-            }
-        } else if (d) {
-            moveDirection = 0;
+            rigidBody.velocity -= .01f * new Vector2(dx, dy);
+        }
+        if (d) {
+            rigidBody.angularVelocity -= .2f;
         } else if (a) {
-            moveDirection = 180;
-        } else {
-            moveDirection = STOPPED;
+            rigidBody.angularVelocity += .2f;
         }
 
-        animator.SetBool("moving", moveDirection != STOPPED);
-        
-        if (moveDirection == STOPPED) {
-            rigidBody.velocity = new Vector2(0, 0);
-        } else {
-            rigidBody.velocity = moveDirectionToVector(moveDirection);
-        }
+        bool moving = w || s;
+        animator.SetBool("moving", moving);
     }
 
     public void SetHasCat(bool hasCat) {
         if (this.hasCat == hasCat) return;
         this.hasCat = hasCat;
         animator.SetBool("hascat", hasCat);
-    }
-
-    static Vector2 moveDirectionToVector(int moveDirection) {
-        float deltaX = Mathf.Cos(Mathf.Deg2Rad * (moveDirection)) * SPEED;
-        float deltaY = Mathf.Sin(Mathf.Deg2Rad * (moveDirection)) * SPEED;
-        return new Vector2(
-            deltaX,
-            deltaY
-        );
+        if (this.hasCat) {
+            rigidBody.rotation = 0;
+            rigidBody.velocity = new Vector2(0, .2f);
+        } else {
+            rigidBody.velocity = Vector2.zero;
+        }
+        rigidBody.angularVelocity = 0;
     }
 }

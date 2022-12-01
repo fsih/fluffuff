@@ -97,9 +97,7 @@ public class PlayerController : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!gameObject.activeSelf) return;
-        Debug.Log("ontriggerenter");
         if (other.gameObject == box) {
-        Debug.Log("otehr is box");
             SetInBox(true);
             box.GetComponent<BoxController>().SetHasCat(true);
         }
