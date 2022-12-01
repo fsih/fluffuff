@@ -2,31 +2,33 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class BoxController : MonoBehaviour
 {
-    public GameObject box;
+    public GameObject cat;
     public const float SPEED = 5f; // change this to change the movement speed
     private const int STOPPED = -1; // a moveDirection value
+    private bool hasCat = false;
     private Rigidbody2D rigidBody;
     private Animator animator;
-    private SpriteRenderer renderer;
     private Vector3 lastPlayerPosition;
-    private bool inBox = false;
 
-    void Start() {
+    // Start is called before the first frame update
+    void Start()
+    {
         animator = GetComponentInChildren<Animator>();
         rigidBody = GetComponentInChildren<Rigidbody2D>();
-        renderer = GetComponentInChildren<SpriteRenderer>();
         lastPlayerPosition = transform.position;
     }
 
-    void Update() {
+    // Update is called once per frame
+    void Update()
+    {
         // Stay in the bounds
-        if (rigidBody.transform.position.y > 5.26f) {
+        if (rigidBody.transform.position.y < 5f) {
             rigidBody.transform.position -= new Vector3(0, rigidBody.transform.position.y - 5.26f, 0);
-        }
-        if (rigidBody.transform.position.y < 0f) {
-            rigidBody.transform.position -= new Vector3(0, rigidBody.transform.position.y, 0);
+            rigidBody.velocity = Vector3.zero;
+            SetHasCat(false);
+            cat.GetComponent<PlayerController>().SetInBox(false);
         }
         if (rigidBody.transform.position.x > 3.4f) {
             rigidBody.transform.position -= new Vector3(rigidBody.transform.position.x - 3.4f, 0, 0);
@@ -35,7 +37,8 @@ public class PlayerController : MonoBehaviour
             rigidBody.transform.position -= new Vector3(rigidBody.transform.position.x + 3.4f, 0, 0);
         }
 
-        if (inBox) return;
+
+        if (!hasCat) return;
 
         // Camera follows player y
         Camera.main.transform.position += new Vector3(0, rigidBody.transform.position.y - lastPlayerPosition.y, 0);
@@ -80,12 +83,7 @@ public class PlayerController : MonoBehaviour
             moveDirection = STOPPED;
         }
 
-        animator.SetInteger("walking", moveDirection);
-        if (moveDirection > 90 && moveDirection <= 270) {
-            renderer.flipX = false;
-        } else if (moveDirection != STOPPED) {
-            renderer.flipX = true;
-        }
+        animator.SetBool("moving", moveDirection != STOPPED);
         
         if (moveDirection == STOPPED) {
             rigidBody.velocity = new Vector2(0, 0);
@@ -94,25 +92,10 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (!gameObject.activeSelf) return;
-        Debug.Log("ontriggerenter");
-        if (other.gameObject == box) {
-        Debug.Log("otehr is box");
-            SetInBox(true);
-            box.GetComponent<BoxController>().SetHasCat(true);
-        }
-    }
-
-    public void SetInBox(bool inBox) {
-        if (this.inBox == inBox) return;
-        this.inBox = inBox;
-        if (!inBox) {
-            // move cat away from box so it doesn't collide
-            rigidBody.transform.position = box.transform.position - new Vector3(0, 1f, 0);
-        }
-        gameObject.SetActive(!inBox);
+    public void SetHasCat(bool hasCat) {
+        if (this.hasCat == hasCat) return;
+        this.hasCat = hasCat;
+        animator.SetBool("hascat", hasCat);
     }
 
     static Vector2 moveDirectionToVector(int moveDirection) {
